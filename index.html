@@ -436,7 +436,10 @@
                 <div class="intro-text">
                     <p>為了讓我們能更深入地了解不同會員群體的需求，希望您能提供一些背景資訊。此部分為<strong>選填</strong>，且所有選項皆為<strong>類別式</strong>，無法追溯至個人，請安心填寫。</p>
                 </div>
-
+                <div class="question-group">
+                    <div class="question-label">1. 您的姓名 (選填 optional)</div>
+                    <input type="text" id="userName" class="text-input" placeholder="請輸入您的姓名（選填）" style="width: 100%; padding: 15px; border: 2px solid #e9ecef; border-radius: 10px; font-size: 1em; font-family: inherit; transition: all 0.3s ease; margin-bottom: 30px;">
+                </div>
                 <div class="question-group">
                     <div class="question-label">1. 您目前主要的執業場所類型為？</div>
                     <div class="radio-group">
@@ -778,6 +781,8 @@
 
         function collectFormData() {
             const formData = {
+                // 新增這一行來收集姓名資料
+                userName: document.getElementById('userName')?.value || '', // 確保抓取userName欄位的值
                 workplace: document.querySelector('input[name="workplace"]:checked')?.value || '',
                 experience: document.querySelector('input[name="experience"]:checked')?.value || '',
                 selectedCommittees: selectedCommittees,
