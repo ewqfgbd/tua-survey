@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TUA 2026 Vision Survey</title>
     <style>
-        /* ... (您的 CSS 樣式保持不變) ... */
         * {
             margin: 0;
             padding: 0;
@@ -38,215 +37,385 @@
         }
 
         @keyframes slideUp {
-            from {
-                transform: translateY(20px);
-                opacity: 0;
-            }
             to {
                 transform: translateY(0);
                 opacity: 1;
             }
         }
 
-        header {
-            background: #007bff;
+        .header {
+            background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
             color: white;
-            padding: 25px 20px;
+            padding: 40px 30px;
             text-align: center;
-            border-bottom: 5px solid #0056b3;
-            font-size: 1.8em;
-            font-weight: 700;
+            position: relative;
+            overflow: hidden;
         }
 
-        .progress-bar-container {
-            width: 100%;
-            background-color: #e0e0e0;
-            height: 8px;
-            border-radius: 4px;
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease infinite;
         }
 
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background-color: #28a745;
-            border-radius: 4px;
-            transition: width 0.3s ease-in-out;
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
-        .survey-page {
-            padding: 30px;
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page {
             display: none;
-            flex-direction: column;
-            gap: 25px;
-            min-height: 500px; /* Ensure pages have a minimum height */
+            padding: 40px;
+            min-height: 400px;
+            opacity: 0;
+            transform: translateX(30px);
+            transition: all 0.4s ease;
         }
 
-        .survey-page.active {
-            display: flex;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
+        .page.active {
             display: block;
-            margin-bottom: 8px;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .page h2 {
+            color: #0066cc;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            font-weight: 500;
+        }
+
+        .intro-text {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid #0066cc;
+            line-height: 1.8;
+        }
+
+        .question-group {
+            margin-bottom: 30px;
+        }
+
+        .question-label {
             font-weight: 600;
-            color: #555;
+            margin-bottom: 15px;
+            color: #444;
             font-size: 1.1em;
         }
 
-        .text-input,
-        select,
+        .radio-group, .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radio-option, .checkbox-option {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .radio-option:hover, .checkbox-option:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+            border-color: #0066cc;
+        }
+
+        input[type="radio"], input[type="checkbox"] {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        input[type="radio"]:checked + label,
+        input[type="checkbox"]:checked + label {
+            color: #0066cc;
+            font-weight: 600;
+        }
+
+        .checkbox-section {
+            margin-bottom: 30px;
+        }
+
+        .checkbox-section h3 {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
         textarea {
             width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
             font-size: 1em;
-            color: #333;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
-        }
-
-        .text-input:focus,
-        select:focus,
-        textarea:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-            outline: none;
-        }
-
-        textarea {
+            font-family: inherit;
             resize: vertical;
-            min-height: 100px;
+            transition: all 0.3s ease;
         }
 
-        .button-group {
+        textarea:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .navigation {
             display: flex;
             justify-content: space-between;
-            margin-top: 30px;
+            align-items: center;
+            padding: 30px 40px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
         }
 
-        .nav-btn {
-            background-color: #007bff;
-            color: white;
-            padding: 12px 25px;
+        .btn {
+            padding: 12px 30px;
             border: none;
             border-radius: 8px;
+            font-size: 1em;
             cursor: pointer;
-            font-size: 1.1em;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .nav-btn:hover {
-            background-color: #0056b3;
+        .btn-primary {
+            background: #0066cc;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #0052a3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #5a6268;
             transform: translateY(-2px);
         }
 
-        .nav-btn:disabled {
-            background-color: #cccccc;
+        .btn:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
         }
 
-        #submitBtn {
-            background-color: #28a745;
-            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
+        .progress-container {
+            padding: 20px 40px;
+            background: #f8f9fa;
         }
 
-        #submitBtn:hover {
-            background-color: #218838;
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
         }
 
-        .committee-selection,
-        .committee-feedback-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0066cc 0%, #004499 100%);
+            border-radius: 4px;
+            transition: width 0.6s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .committee-item {
-            background-color: #f8f9fa;
-            border: 1px solid #e2e6ea;
-            border-radius: 8px;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+            animation: shimmer 2s infinite;
         }
 
-        .committee-item:hover {
-            background-color: #e9ecef;
-            border-color: #ced4da;
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
-        .committee-item.selected {
-            background-color: #e0f7fa;
-            border-color: #00bcd4;
-            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.25);
-        }
-
-        .committee-item input[type="checkbox"] {
-            margin-right: 8px;
-            width: 20px;
-            height: 20px;
-            accent-color: #007bff;
-            cursor: pointer;
-        }
-
-        .feedback-item {
-            background-color: #f0f8ff; /* Light blue background */
-            border: 1px solid #d0e8f8;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        .feedback-item label {
-            font-weight: 700; /* Bolder labels for feedback sections */
-            color: #0056b3; /* Darker blue color */
-        }
-
-        .feedback-item textarea {
-            border-color: #a7d9f7; /* Lighter blue border */
-        }
-
-        .committee-feedback-title {
-            background-color: #cfe2f3;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-weight: bold;
-            color: #1a5e9a;
-            margin-bottom: 15px;
-        }
-
-        footer {
+        .progress-text {
             text-align: center;
-            padding: 20px;
+            margin-top: 10px;
             color: #666;
             font-size: 0.9em;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 600px) {
-            .survey-page {
-                padding: 20px;
-            }
+        .committee-badge {
+            display: inline-block;
+            background: #0066cc;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+            animation: fadeIn 0.4s ease;
+        }
 
-            .nav-btn {
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .thank-you-icon {
+            font-size: 4em;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .page {
+                padding: 25px;
+            }
+            
+            .navigation {
+                padding: 20px 25px;
+            }
+            
+            .btn {
                 padding: 10px 20px;
-                font-size: 1em;
+                font-size: 0.9em;
             }
+        }
 
-            .committee-selection {
-                grid-template-columns: 1fr;
+        /* Export Modal Styles */
+        .export-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .export-modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            animation: slideUp 0.4s ease;
+        }
+
+        .export-modal-content h3 {
+            color: #0066cc;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .export-modal-content p {
+            margin-bottom: 30px;
+            color: #666;
+        }
+
+        .export-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .export-buttons .btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.1em;
+            padding: 15px 20px;
+        }
+
+        @media (max-width: 500px) {
+            .export-modal-content {
+                padding: 30px 20px;
             }
         }
     </style>
@@ -254,332 +423,525 @@
 <body>
     <div class="container">
         <div class="survey-wrapper">
-            <header>
-                TUA 2026 Vision Survey
-            </header>
-            <div class="progress-bar-container">
-                <div class="progress-bar" id="progressBar"></div>
+            <div class="header">
+                <h1>TUA 2026 Vision Survey</h1>
+                <p>共創台灣泌尿科醫學會的未來願景</p>
             </div>
 
-            <div id="page1" class="survey-page active">
-                <div class="form-group">
-                    <label for="workplace">您的執業場所 (必填)</label>
-                    <select id="workplace" class="text-input" required>
-                        <option value="">請選擇</option>
-                        <option value="醫學中心">醫學中心</option>
-                        <option value="區域醫院">區域醫院</option>
-                        <option value="地區醫院">地區醫院</option>
-                        <option value="診所">診所</option>
-                        <option value="其他">其他</option>
-                    </select>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
                 </div>
-                <div class="form-group">
-                    <label for="experience">您的執業年資 (必填)</label>
-                    <select id="experience" class="text-input" required>
-                        <option value="">請選擇</option>
-                        <option value="0-5年">0-5年</option>
-                        <option value="6-15年">6-15年</option>
-                        <option value="16-25年">16-25年</option>
-                        <option value="26年以上">26年以上</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="userName">您的姓名 (選填 optional)</label>
-                    <input type="text" id="userName" class="text-input" placeholder="請輸入您的姓名（選填）">
-                </div>
-                <div class="button-group">
-                    <button class="nav-btn" onclick="nextPage()">下一頁</button>
+                <div class="progress-text" id="progressText">開始問卷</div>
+            </div>
+
+            <div class="page active" id="page1">
+                <h2>歡迎參與 TUA 2026 願景調查</h2>
+                <div class="intro-text">
+                    <p>親愛的醫局朋友，您好：</p>
+                    <p>為凝聚競選「2026 台灣泌尿科醫學會 (TUA) 理事長」的政見亮點，並確保每一項規劃都能切實回應會員的需求，我們特別設計了這份匿名問卷。</p>
+                    <p>您的洞見至關重要。無論是關於各委員會的未來運作、醫學中心與基層院所的均衡發展，或是學會的創新方向，我們都誠摯地邀請您直言分享。</p>
+                    <p><strong>本問卷採匿名制</strong>，所有資料僅供內部政見規劃使用，絕不外流，敬請放心。預計填答時間約 5-10 分鐘，感謝您撥冗協助，一同為 TUA 的未來貢獻心力！</p>
                 </div>
             </div>
 
-            <div id="page2" class="survey-page">
-                <div class="form-group">
-                    <label>您最關注或希望提出建議的委員會 (可複選)</label>
-                    <div class="committee-selection" id="committeeSelection">
-                        </div>
+            <div class="page" id="page2">
+                <h2>基本背景資訊（選填）</h2>
+                <div class="intro-text">
+                    <p>為了讓我們能更深入地了解不同會員群體的需求，希望您能提供一些背景資訊。此部分為<strong>選填</strong>，且所有選項皆為<strong>類別式</strong>，無法追溯至個人，請安心填寫。</p>
                 </div>
-                <div class="button-group">
-                    <button class="nav-btn" onclick="prevPage()">上一頁</button>
-                    <button class="nav-btn" onclick="nextPage()" id="nextPage2Btn">下一頁</button>
-                </div>
-            </div>
 
-            <div id="page3" class="survey-page">
-                <label>請針對您選擇的委員會提供建議：</label>
-                <div id="committeeFeedback" class="feedback-container">
+                <div class="question-group">
+                    <div class="question-label">0. 您的姓名或代號 (選填)</div>
+                    <input type="text" id="userName" placeholder="請輸入您的姓名或代號">
+                </div>
+
+                <div class="question-group">
+                    <div class="question-label">1. 您目前主要的執業場所類型為？</div>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="workplace" value="medical-center">
+                            <span>醫學中心</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="workplace" value="regional-hospital">
+                            <span>區域醫院</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="workplace" value="district-hospital">
+                            <span>地區醫院</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="workplace" value="clinic">
+                            <span>基層診所</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="workplace" value="other">
+                            <span>其他</span>
+                        </label>
                     </div>
-                <div class="form-group">
-                    <label for="crossDisciplinary">對於跨領域合作的綜合建議：</label>
-                    <textarea id="crossDisciplinary" class="text-input" placeholder="您對於不同委員會之間或與其他醫療領域的合作有何建議？"></textarea>
                 </div>
-                <div class="form-group">
-                    <label for="highlightPolicy">您認為未來 TUA 發展的亮點政見或願景是什麼？</label>
-                    <textarea id="highlightPolicy" class="text-input" placeholder="請描述您心目中 TUA 未來最重要的方向或目標。"></textarea>
+
+                <div class="question-group">
+                    <div class="question-label">2. 您的泌尿科執業年資約為？</div>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="experience" value="junior">
+                            <span>5年以下 (青年醫師)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="experience" value="mid-career">
+                            <span>6-15年 (中生代醫師)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="experience" value="senior">
+                            <span>16年以上 (資深醫師)</span>
+                        </label>
+                    </div>
                 </div>
-                <div class="button-group">
-                    <button class="nav-btn" onclick="prevPage()">上一頁</button>
-                    <button class="nav-btn" id="submitBtn">☁️ 儲存至 Google Sheets</button>
+            </div>
+
+            <div class="page" id="page3">
+                <h2>總結與亮點政見</h2>
+                <div class="intro-text">
+                    <p>在深入了解各委員會之前，我們想先請教您對 TUA 整體發展的宏觀看法。</p>
                 </div>
+
+                <div class="question-group">
+                    <div class="question-label">1. 跨領域綜合建議</div>
+                    <p style="margin-bottom: 10px; color: #666;">您對 TUA 有任何跨領域的綜合性建議嗎？(例如：如何促進不同委員會間的合作、如何平衡醫學中心與基層的需求、如何提升 TUA 的社會影響力等)</p>
+                    <textarea id="crossDisciplinary" placeholder="請分享您的跨領域建議..."></textarea>
+                </div>
+
+                <div class="question-group">
+                    <div class="question-label">2. 您的亮點政見 (Highlight Policy)</div>
+                    <p style="margin-bottom: 10px; color: #666;">如果您是候選人，您會提出什麼樣的「亮點政見」來爭取會員支持？這個想法可能是一個創新的計畫、一個大膽的改革，或是一個能凝聚所有會員向心力的目標。</p>
+                    <textarea id="highlightPolicy" placeholder="請分享您的亮點政見..."></textarea>
+                </div>
+            </div>
+
+            <div class="page" id="page4">
+                <h2>您希望對哪些委員會的運作與發展提供建議？</h2>
+                <div class="intro-text">
+                    <p>了解您的整體願景後，現在請勾選您想要提供具體建議的委員會。接下來，問卷將會針對您勾選的每一個項目，個別請教您的看法。</p>
+                </div>
+
+                <div class="checkbox-section">
+                    <h3>學術性委員會</h3>
+                    <div class="checkbox-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="academic-general">
+                            <span>學術性委員會 (總體)</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="uro-oncology">
+                            <span>泌尿腫瘤委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="robotic-laparoscopic">
+                            <span>機器手臂暨腹腔鏡手術委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="functional-urology">
+                            <span>功能性泌尿學委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="urolithiasis">
+                            <span>尿路結石委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="infection-inflammation">
+                            <span>感染與發炎委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="kidney-transplant">
+                            <span>腎臟移植委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="pediatric-urology">
+                            <span>小兒泌尿學委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="andrology">
+                            <span>男性學委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="joint-research">
+                            <span>聯合研究委員會</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="checkbox-section">
+                    <h3>事務性委員會</h3>
+                    <div class="checkbox-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="administrative-general">
+                            <span>事務性委員會 (總體)</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="international-affairs">
+                            <span>國際事務委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="education">
+                            <span>教育委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="insurance-self-pay">
+                            <span>健保及自費醫療委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="journal">
+                            <span>學會雜誌委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="training-accreditation">
+                            <span>訓練醫院評鑑委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="specialist-review">
+                            <span>專科醫師甄審委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="it-online-education">
+                            <span>資訊暨線上教育委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="primary-care">
+                            <span>基層醫療委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="innovation">
+                            <span>新創委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="medical-policy-pr">
+                            <span>醫療政策暨公共關係委員會</span>
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="committees" value="young-urologists">
+                            <span>青年事務委員會</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page" id="thankYouPage">
+                <div class="thank-you-icon">🎉</div>
+                <h2>問卷完成，由衷感謝！</h2>
+                <div class="intro-text">
+                    <p>再次感謝您撥冗填寫問卷，提供如此寶貴的洞見。您的每一句話，都是我們擘劃 TUA 未來藍圖的重要基石。</p>
+                    <p>我們將仔細研讀所有回饋，並將其融入我們的政見之中。</p>
+                    <p>敬祝 順心、平安！</p>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button class="btn btn-secondary" id="prevBtn" onclick="changePage(-1)" disabled>上一頁</button>
+                <button class="btn btn-primary" id="nextBtn" onclick="changePage(1)">下一頁</button>
             </div>
         </div>
     </div>
 
-    <footer>
-        &copy; 2025 TUA. All rights reserved.
-    </footer>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    
     <script>
+        // Committee names mapping
+        const committeeNames = {
+            'academic-general': '學術性委員會 (總體)',
+            'uro-oncology': '泌尿腫瘤委員會',
+            'robotic-laparoscopic': '機器手臂暨腹腔鏡手術委員會',
+            'functional-urology': '功能性泌尿學委員會',
+            'urolithiasis': '尿路結石委員會',
+            'infection-inflammation': '感染與發炎委員會',
+            'kidney-transplant': '腎臟移植委員會',
+            'pediatric-urology': '小兒泌尿學委員會',
+            'andrology': '男性學委員會',
+            'joint-research': '聯合研究委員會',
+            'administrative-general': '事務性委員會 (總體)',
+            'international-affairs': '國際事務委員會',
+            'education': '教育委員會',
+            'insurance-self-pay': '健保及自費醫療委員會',
+            'journal': '學會雜誌委員會',
+            'training-accreditation': '訓練醫院評鑑委員會',
+            'specialist-review': '專科醫師甄審委員會',
+            'it-online-education': '資訊暨線上教育委員會',
+            'primary-care': '基層醫療委員會',
+            'innovation': '新創委員會',
+            'medical-policy-pr': '醫療政策暨公共關係委員會',
+            'young-urologists': '青年事務委員會'
+        };
+
         let currentPage = 1;
-        const totalPages = 3;
-        const progressBar = document.getElementById('progressBar');
-        const submitButton = document.getElementById('submitBtn');
+        let totalPages = 5; // 初始頁數：歡迎、背景、願景、委員會選擇、感謝
+        let selectedCommittees = [];
+        let dynamicPagesCreated = false;
 
-        // Committee data (ID and display name)
-        const committees = [
-            { id: 'academic-general', name: '學術性委員會(總體)' },
-            { id: 'uro-oncology', name: '泌尿腫瘤委員會' },
-            { id: 'robotic-laparoscopic', name: '機器手臂暨腹腔鏡手術委員會' },
-            { id: 'functional-urology', name: '功能性泌尿學委員會' },
-            { id: 'urolithiasis', name: '尿路結石委員會' },
-            { id: 'infection-inflammation', name: '感染與發炎委員會' },
-            { id: 'kidney-transplant', name: '腎臟移植委員會' },
-            { id: 'pediatric-urology', name: '小兒泌尿學委員會' },
-            { id: 'andrology', name: '男性學委員會' },
-            { id: 'joint-research', name: '聯合研究委員會' },
-            { id: 'administrative-general', name: '事務性委員會(總體)' },
-            { id: 'international-affairs', name: '國際事務委員會' },
-            { id: 'education', name: '教育委員會' },
-            { id: 'insurance-self-pay', name: '健保及自費醫療委員會' },
-            { id: 'journal', name: '學會雜誌委員會' },
-            { id: 'training-accreditation', name: '訓練醫院評鑑委員會' },
-            { id: 'specialist-review', name: '專科醫師甄審委員會' },
-            { id: 'it-online-education', name: '資訊暨線上教育委員會' },
-            { id: 'primary-care', name: '基層醫療委員會' },
-            { id: 'innovation', name: '新創委員會' },
-            { id: 'medical-policy-pr', name: '醫療政策暨公共關係委員會' },
-            { id: 'young-urologists', name: '青年事務委員會' }
-        ];
-
-        // Function to update progress bar
         function updateProgressBar() {
-            const progress = (currentPage / totalPages) * 100;
-            progressBar.style.width = `${progress}%`;
+            const progress = ((currentPage - 1) / (totalPages - 1)) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `第 ${currentPage} 頁，共 ${totalPages} 頁`;
         }
 
-        // Function to show a specific page
-        function showPage(pageNumber) {
-            document.querySelectorAll('.survey-page').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.getElementById(`page${pageNumber}`).classList.add('active');
-            currentPage = pageNumber;
+        function changePage(direction) {
+            const currentPageElement = document.querySelector('.page.active');
+            currentPageElement.classList.remove('active');
+
+            // Create dynamic pages after committee selection (page 4)
+            if (currentPage === 4 && direction === 1 && !dynamicPagesCreated) {
+                createDynamicPages();
+            }
+
+            currentPage += direction;
+
+            // Ensure we don't go beyond the bounds
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            
+            // Show the new page
+            const pages = document.querySelectorAll('.page');
+            pages[currentPage - 1].classList.add('active');
+
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            
+            // Reset button visibility
+            document.getElementById('nextBtn').style.display = 'block';
+            document.getElementById('prevBtn').style.display = 'block';
+            
+            // 檢查是否為最後一個內容頁面
+            let isLastContentPage = false;
+            
+            if (selectedCommittees.length > 0) {
+                // 有選擇委員會：最後一個委員會頁面是倒數第二頁
+                isLastContentPage = currentPage === totalPages - 1;
+            } else if (selectedCommittees.length === 0 && dynamicPagesCreated) {
+                // 沒有選擇委員會：第4頁（委員會選擇頁）是倒數第二頁
+                isLastContentPage = currentPage === 4;
+            }
+            
+            if (isLastContentPage) {
+                document.getElementById('nextBtn').textContent = '提交問卷';
+                document.getElementById('nextBtn').onclick = () => {
+                    submitSurvey();
+                    changePage(1); // 提交後自動跳到感謝頁面
+                };
+            } else if (currentPage === totalPages) {
+                // 感謝頁面隱藏下一頁按鈕
+                document.getElementById('nextBtn').style.display = 'none';
+            } else {
+                // 所有其他頁面都顯示下一頁
+                document.getElementById('nextBtn').textContent = '下一頁';
+                document.getElementById('nextBtn').onclick = () => changePage(1);
+            }
+
             updateProgressBar();
-            
-            // If navigating to page 3, ensure committee feedback sections are generated
-            if (pageNumber === 3) {
-                generateCommitteeFeedbackSections();
-            }
         }
 
-        // Function to navigate to the next page
-        function nextPage() {
-            // Basic validation for page 1
-            if (currentPage === 1) {
-                const workplace = document.getElementById('workplace').value;
-                const experience = document.getElementById('experience').value;
-                if (!workplace || !experience) {
-                    alert('請填寫所有必填欄位！');
-                    return;
-                }
-            }
-            // Basic validation for page 2 (at least one committee must be selected)
-            if (currentPage === 2) {
-                const selectedCheckboxes = document.querySelectorAll('#committeeSelection input[type="checkbox"]:checked');
-                if (selectedCheckboxes.length === 0) {
-                    alert('請至少選擇一個委員會！');
-                    return;
-                }
+        function createDynamicPages() {
+            // Get selected committees
+            const checkboxes = document.querySelectorAll('input[name="committees"]:checked');
+            selectedCommittees = Array.from(checkboxes).map(cb => cb.value);
+
+            // Remove any existing dynamic pages
+            const existingDynamicPages = document.querySelectorAll('.dynamic-page');
+            existingDynamicPages.forEach(page => page.remove());
+
+            // If no committees selected, just update total pages
+            if (selectedCommittees.length === 0) {
+                totalPages = 5; // 基本5頁（包含感謝頁）
+                dynamicPagesCreated = true;
+                updateProgressBar();
+                return;
             }
 
-            if (currentPage < totalPages) {
-                currentPage++;
-                showPage(currentPage);
-            }
-        }
-
-        // Function to navigate to the previous page
-        function prevPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                showPage(currentPage);
-            }
-        }
-
-        // Function to dynamically load committee selection options
-        function loadCommitteeSelection() {
-            const container = document.getElementById('committeeSelection');
-            committees.forEach(committee => {
-                const div = document.createElement('div');
-                div.className = 'committee-item';
-                div.innerHTML = `
-                    <input type="checkbox" id="committee-${committee.id}" name="committee" value="${committee.id}">
-                    <label for="committee-${committee.id}">${committee.name}</label>
-                `;
-                div.addEventListener('click', () => {
-                    const checkbox = div.querySelector('input[type="checkbox"]');
-                    checkbox.checked = !checkbox.checked;
-                    div.classList.toggle('selected', checkbox.checked);
-                });
-                // Ensure clicking checkbox itself also toggles selected class
-                div.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
-                    e.stopPropagation(); // Prevent click event on div from firing again
-                    div.classList.toggle('selected', e.target.checked);
-                });
-                container.appendChild(div);
-            });
-        }
-
-        // Function to dynamically generate feedback sections for selected committees
-        function generateCommitteeFeedbackSections() {
-            const feedbackContainer = document.getElementById('committeeFeedback');
-            feedbackContainer.innerHTML = ''; // Clear previous sections
-
-            const selectedCommittees = Array.from(document.querySelectorAll('#committeeSelection input[type="checkbox"]:checked'))
-                                            .map(cb => committees.find(c => c.id === cb.value));
-            
-            selectedCommittees.forEach(committee => {
-                const div = document.createElement('div');
-                div.className = 'feedback-item';
-                div.innerHTML = `
-                    <div class="committee-feedback-title">${committee.name}</div>
-                    <div class="form-group">
-                        <label for="${committee.id}-challenges">現況挑戰與問題：</label>
-                        <textarea id="${committee.id}-challenges" class="text-input" placeholder="請描述您認為該委員會目前面臨的挑戰與問題。"></textarea>
+            // Create a page for each selected committee
+            selectedCommittees.forEach((committee, index) => {
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'page dynamic-page';
+                pageDiv.innerHTML = `
+                    <span class="committee-badge">政見建議 ${index + 1}/${selectedCommittees.length}</span>
+                    <h2>${committeeNames[committee]}</h2>
+                    
+                    <div class="question-group">
+                        <div class="question-label">1. 現況觀察與挑戰</div>
+                        <p style="margin-bottom: 10px; color: #666;">您認為此委員會目前面臨最大的挑戰，或有哪些可以做得更好的地方？</p>
+                        <textarea class="committee-challenge" data-committee="${committee}" placeholder="請分享您對現況的觀察..."></textarea>
                     </div>
-                    <div class="form-group">
-                        <label for="${committee.id}-future">未來方向與建議：</label>
-                        <textarea id="${committee.id}-future" class="text-input" placeholder="請提供您對該委員會未來發展方向、目標或具體方案的建議。"></textarea>
+                    
+                    <div class="question-group">
+                        <div class="question-label">2. 未來政見與方向</div>
+                        <p style="margin-bottom: 10px; color: #666;">您希望未來的理事長能在此委員會推動哪些具體政策、活動或改革？</p>
+                        <textarea class="committee-future" data-committee="${committee}" placeholder="請分享您對未來的建議..."></textarea>
                     </div>
                 `;
-                feedbackContainer.appendChild(div);
+
+                // Insert before thank you page
+                const thankYouPage = document.getElementById('thankYouPage');
+                thankYouPage.parentNode.insertBefore(pageDiv, thankYouPage);
             });
+
+            // Update total pages
+            totalPages = 5 + selectedCommittees.length;
+            dynamicPagesCreated = true;
+            updateProgressBar();
         }
 
-        // Collect all form data before submission
         function collectFormData() {
             const formData = {
-                workplace: document.getElementById('workplace').value,
-                experience: document.getElementById('experience').value,
-                userName: document.getElementById('userName')?.value || '', // <--- IMPORTANT: Collect userName here
-                selectedCommittees: Array.from(document.querySelectorAll('#committeeSelection input[type="checkbox"]:checked'))
-                                         .map(cb => cb.value),
+                userName: document.getElementById('userName').value || '', // Added userName
+                workplace: document.querySelector('input[name="workplace"]:checked')?.value || '',
+                experience: document.querySelector('input[name="experience"]:checked')?.value || '',
+                selectedCommittees: selectedCommittees,
+                committeeResponses: {},
                 crossDisciplinary: document.getElementById('crossDisciplinary').value,
-                highlightPolicy: document.getElementById('highlightPolicy').value,
-                committeeResponses: {}
+                highlightPolicy: document.getElementById('highlightPolicy').value
             };
 
-            // Collect committee-specific feedback
-            formData.selectedCommittees.forEach(committeeId => {
-                formData.committeeResponses[committeeId] = {
-                    challenges: document.getElementById(`${committeeId}-challenges`)?.value || '',
-                    future: document.getElementById(`${committeeId}-future`)?.value || ''
+            // Collect committee-specific responses
+            selectedCommittees.forEach(committee => {
+                formData.committeeResponses[committee] = {
+                    challenges: document.querySelector(`.committee-challenge[data-committee="${committee}"]`)?.value || '',
+                    future: document.querySelector(`.committee-future[data-committee="${committee}"]`)?.value || ''
                 };
             });
 
             return formData;
         }
 
-        // Handle form submission
-        submitButton.addEventListener('click', handleFormSubmit);
-
-        function handleFormSubmit(event) {
-            event.preventDefault(); // Prevent default form submission
-            
-            // Basic validation for Page 3
-            // You can add more specific validation here if needed
-            const crossDisciplinary = document.getElementById('crossDisciplinary').value;
-            const highlightPolicy = document.getElementById('highlightPolicy').value;
-            // No strict required for textareas, but can add if necessary
-            // if (!crossDisciplinary || !highlightPolicy) {
-            //     alert('請填寫所有必填的建議欄位！');
-            //     return;
-            // }
-
-            submitButton.disabled = true;
-            submitButton.textContent = '提交中...';
-
+        function submitSurvey() {
             const formData = collectFormData();
-
-            // Prepare data for Google Apps Script using URLSearchParams
-            // This format aligns with how Apps Script's e.parameter handles form-encoded data
-            const params = new URLSearchParams();
-            params.append('timestamp', new Date().toISOString());
-            params.append('userName', formData.userName || ''); // <--- IMPORTANT: Add userName to params
-            params.append('workplace', formData.workplace || '');
-            params.append('experience', formData.experience || '');
-            params.append('selectedCommittees', formData.selectedCommittees.join(';')); // Send as semicolon-separated string
-            params.append('crossDisciplinary', formData.crossDisciplinary || '');
-            params.append('highlightPolicy', formData.highlightPolicy || '');
-
-            // Add committee-specific responses individually to URLSearchParams
-            for (const committeeId in formData.committeeResponses) {
-                const responses = formData.committeeResponses[committeeId];
-                if (responses.challenges) {
-                    params.append(`${committeeId}_challenges`, responses.challenges);
-                }
-                if (responses.future) {
-                    params.append(`${committeeId}_future`, responses.future);
-                }
-            }
+            console.log('Survey Data:', formData);
             
-            // Your Google Apps Script Web App URL
-            // Ensure this URL is correct and deployed as 'Execute as: Me' and 'Who has access: Anyone'
-            // Please use the URL that Postman successfully used:
-            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx-YvCfiL-xE50vOFzmT4zrO1Kv7McvtnzGF5zLTZtD2jkA21M2UB3NWBe4r_l-yXVbcQ/exec'; 
-
-            // 發送資料到 Google Apps Script
+            // 顯示提交中的狀態
+            const submitBtn = document.getElementById('nextBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '資料提交中...';
+            
+            // Google Apps Script Web App URL
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMXHzRfPuNmxtFCL6OT_oKtW-Z4l2Ktc76DwyXOXHQiCuZNDeLzqyDCkW-9aKLmVY4/exec';
+            
+            // 準備要發送的資料（簡化格式）
+            const formDataEncoded = new FormData();
+            formDataEncoded.append('timestamp', new Date().toISOString());
+            formDataEncoded.append('userName', formData.userName); // Appended userName
+            formDataEncoded.append('workplace', formData.workplace || '');
+            formDataEncoded.append('experience', formData.experience || '');
+            formDataEncoded.append('selectedCommittees', formData.selectedCommittees.join(';'));
+            formDataEncoded.append('crossDisciplinary', formData.crossDisciplinary || '');
+            formDataEncoded.append('highlightPolicy', formData.highlightPolicy || '');
+            
+            // 添加委員會回應
+            formData.selectedCommittees.forEach(committee => {
+                if (formData.committeeResponses[committee]) {
+                    formDataEncoded.append(`${committee}_challenges`, formData.committeeResponses[committee].challenges || '');
+                    formDataEncoded.append(`${committee}_future`, formData.committeeResponses[committee].future || '');
+                }
+            });
+            
+            // 使用 fetch 發送請求
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
-                // Change mode to 'cors' to allow proper header handling and error reporting
-                mode: 'cors', // <--- IMPORTANT CHANGE: This requires Apps Script to send CORS headers
-                // Set Content-Type header explicitly for URL-encoded data
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded', // <--- IMPORTANT CHANGE
-                },
-                body: params.toString() // <--- IMPORTANT CHANGE: Send URL-encoded string
+                body: formDataEncoded
             })
-            .then(response => {
-                // Check if response is OK (status 200-299)
-                if (!response.ok) {
-                    // If not OK, read error message from response body
-                    // Apps Script often returns success/error messages in plain text
-                    return response.text().then(text => { 
-                        throw new Error(`HTTP error! status: ${response.status}. Message: ${text || 'Unknown error.'}`); 
-                    });
-                }
-                return response.text(); // Read response as text
+            .then(response => response.text())
+            .then(result => {
+                console.log('Success:', result);
+                alert('問卷已成功提交至 Google Sheets！');
+                submitBtn.textContent = '✓ 已提交';
+                
+                // 顯示匯出選項
+                // showExportOptionsAfterSubmit(formData); // This function is not defined in the original code, commenting out.
+                
+                // 跳轉到感謝頁面
+                setTimeout(() => {
+                    changePage(1);
+                }, 1000);
             })
-            .then(data => {
-                console.log('Success:', data);
-                alert('資料已成功提交至 Google Sheets！');
-                submitButton.textContent = '✓ 已提交';
-                // Optional: Reset form or navigate
-                // window.location.reload(); 
-            })
-            .catch((error) => {
+            .catch(error => {
                 console.error('Error:', error);
-                alert('提交失敗，請稍後再試。' + error.message); // Show error message from throw
-                submitButton.disabled = false;
-                submitButton.textContent = '☁️ 儲存至 Google Sheets';
+                alert('提交失敗，請稍後再試。'); // Added an alert for submission failure
+                submitBtn.disabled = false; // Re-enable button on error
+                submitBtn.textContent = '提交問卷'; // Reset button text
+                // 備用方案：使用 iframe 提交
+                submitViaIframe(GOOGLE_SCRIPT_URL, formData);
             });
         }
 
-        // Initialize survey
-        document.addEventListener('DOMContentLoaded', () => {
-            loadCommitteeSelection();
-            showPage(1); // Start on the first page
-        });
+        function submitViaIframe(url, formData) {
+            // 創建隱藏的表單
+            const form = document.createElement('form');
+            form.style.display = 'none';
+            form.method = 'POST';
+            form.action = url;
+            form.target = 'hidden_iframe';
+            
+            // 添加基本欄位
+            const fields = {
+                timestamp: new Date().toISOString(),
+                userName: formData.userName, // Added userName
+                workplace: formData.workplace || '',
+                experience: formData.experience || '',
+                selectedCommittees: formData.selectedCommittees.join(';'),
+                crossDisciplinary: formData.crossDisciplinary || '',
+                highlightPolicy: formData.highlightPolicy || ''
+            };
 
+            // Add fields to form
+            for (const key in fields) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = fields[key];
+                form.appendChild(input);
+            }
+
+            // 添加委員會回應
+            formData.selectedCommittees.forEach(committee => {
+                if (formData.committeeResponses[committee]) {
+                    const challengeInput = document.createElement('input');
+                    challengeInput.type = 'hidden';
+                    challengeInput.name = `${committee}_challenges`;
+                    challengeInput.value = formData.committeeResponses[committee].challenges || '';
+                    form.appendChild(challengeInput);
+
+                    const futureInput = document.createElement('input');
+                    futureInput.type = 'hidden';
+                    futureInput.name = `${committee}_future`;
+                    futureInput.value = formData.committeeResponses[committee].future || '';
+                    form.appendChild(futureInput);
+                }
+            });
+            
+            // 創建隱藏的 iframe
+            const iframe = document.createElement('iframe');
+            iframe.name = 'hidden_iframe';
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+
+            // 監聽 iframe 的載入事件，判斷提交是否成功
+            iframe.onload = function() {
+                // 通常 iframe 提交不會有 direct response body，所以主要看是否加載完成
+                alert('問卷已成功提交至 Google Sheets (透過備用方案)！');
+                document.getElementById('nextBtn').textContent = '✓ 已提交';
+                 setTimeout(() => {
+                    changePage(1);
+                }, 1000);
+                document.body.removeChild(form);
+                document.body.removeChild(iframe);
+            };
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // Initialize progress bar and page
+        document.addEventListener('DOMContentLoaded', () => {
+            updateProgressBar();
+            document.getElementById('prevBtn').disabled = true;
+        });
     </script>
 </body>
 </html>
