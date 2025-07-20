@@ -719,10 +719,7 @@
                 isLastContentPage = currentPage === totalPages - 1;
             } else if (selectedCommittees.length === 0 && dynamicPagesCreated) {
                 // 沒有選擇委員會：第4頁（委員會選擇頁）是倒數第二頁
-                // isLastContentPage = currentPage === 4;
-                currentPage === 4;
-                isLastContentPage=true
-                console.log('isLastContentPage:', isLastContentPage);
+                isLastContentPage = currentPage === 4;
             }
             
             if (isLastContentPage) {
