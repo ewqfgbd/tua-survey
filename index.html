@@ -689,12 +689,28 @@
             const currentPageElement = document.querySelector('.page.active');
             currentPageElement.classList.remove('active');
 
-            // Create dynamic pages after committee selection (page 4)
-            if (currentPage === 4 && direction === 1 && !dynamicPagesCreated) {
-                createDynamicPages();
-            }
+            // Handle direct submission from page 4 if no committees are selected
+            if (currentPage === 4 && direction === 1) {
+                const checkboxes = document.querySelectorAll('input[name="committees"]:checked');
+                selectedCommittees = Array.from(checkboxes).map(cb => cb.value);
 
-            currentPage += direction;
+                if (selectedCommittees.length === 0 && !dynamicPagesCreated) {
+                    // If no committees selected, treat page 4 as the last content page before thank you
+                    totalPages = 5; // Reset totalPages to just the base 5 pages
+                    dynamicPagesCreated = true; // Mark as created to prevent re-creation
+                    submitSurvey();
+                    currentPage = totalPages; // Go directly to thank you page
+                } else if (!dynamicPagesCreated) {
+                    // If committees are selected and dynamic pages not yet created, create them
+                    createDynamicPages();
+                    currentPage += direction; // Proceed as normal to the first dynamic page
+                } else {
+                    // Already created, just proceed
+                    currentPage += direction;
+                }
+            } else {
+                currentPage += direction;
+            }
 
             // Ensure we don't go beyond the bounds
             if (currentPage < 1) currentPage = 1;
@@ -717,9 +733,14 @@
             if (selectedCommittees.length > 0) {
                 // 有選擇委員會：最後一個委員會頁面是倒數第二頁
                 isLastContentPage = currentPage === totalPages - 1;
-            } else if (selectedCommittees.length === 0 && dynamicPagesCreated) {
-                // 沒有選擇委員會：第4頁（委員會選擇頁）是倒數第二頁
-                isLastContentPage = currentPage === 4;
+            } else {
+                // 沒有選擇委員會或動態頁面已創建但為空：第4頁（委員會選擇頁）是倒數第二頁
+                // Or if dynamic pages were created but selectedCommittees became 0 for some reason (edge case)
+                isLastContentPage = currentPage === 4 && selectedCommittees.length === 0;
+                // Also consider the case where dynamic pages exist, and we're on the last one
+                if (dynamicPagesCreated && selectedCommittees.length > 0) {
+                     isLastContentPage = currentPage === totalPages - 1;
+                }
             }
             
             if (isLastContentPage) {
@@ -731,6 +752,7 @@
             } else if (currentPage === totalPages) {
                 // 感謝頁面隱藏下一頁按鈕
                 document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('prevBtn').style.display = 'none'; // Also hide previous on thank you
             } else {
                 // 所有其他頁面都顯示下一頁
                 document.getElementById('nextBtn').textContent = '下一頁';
@@ -791,7 +813,7 @@
 
         function collectFormData() {
             const formData = {
-                userName: document.getElementById('userName').value || '', // Added userName
+                userName: document.getElementById('userName').value || '',
                 workplace: document.querySelector('input[name="workplace"]:checked')?.value || '',
                 experience: document.querySelector('input[name="experience"]:checked')?.value || '',
                 selectedCommittees: selectedCommittees,
@@ -826,7 +848,7 @@
             // 準備要發送的資料（簡化格式）
             const formDataEncoded = new FormData();
             formDataEncoded.append('timestamp', new Date().toISOString());
-            formDataEncoded.append('userName', formData.userName); // Appended userName
+            formDataEncoded.append('userName', formData.userName);
             formDataEncoded.append('workplace', formData.workplace || '');
             formDataEncoded.append('experience', formData.experience || '');
             formDataEncoded.append('selectedCommittees', formData.selectedCommittees.join(';'));
@@ -852,19 +874,14 @@
                 alert('問卷已成功提交至 Google Sheets！');
                 submitBtn.textContent = '✓ 已提交';
                 
-                // 顯示匯出選項
-                // showExportOptionsAfterSubmit(formData); // This function is not defined in the original code, commenting out.
-                
                 // 跳轉到感謝頁面
-                setTimeout(() => {
-                    changePage(1);
-                }, 1000);
+                // This is now handled by changePage(1) being called after submitSurvey()
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('提交失敗，請稍後再試。'); // Added an alert for submission failure
-                submitBtn.disabled = false; // Re-enable button on error
-                submitBtn.textContent = '提交問卷'; // Reset button text
+                alert('提交失敗，請稍後再試。');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '提交問卷';
                 // 備用方案：使用 iframe 提交
                 submitViaIframe(GOOGLE_SCRIPT_URL, formData);
             });
@@ -881,7 +898,7 @@
             // 添加基本欄位
             const fields = {
                 timestamp: new Date().toISOString(),
-                userName: formData.userName, // Added userName
+                userName: formData.userName,
                 workplace: formData.workplace || '',
                 experience: formData.experience || '',
                 selectedCommittees: formData.selectedCommittees.join(';'),
@@ -926,9 +943,7 @@
                 // 通常 iframe 提交不會有 direct response body，所以主要看是否加載完成
                 alert('問卷已成功提交至 Google Sheets (透過備用方案)！');
                 document.getElementById('nextBtn').textContent = '✓ 已提交';
-                 setTimeout(() => {
-                    changePage(1);
-                }, 1000);
+                 // This is now handled by changePage(1) being called after submitSurvey()
                 document.body.removeChild(form);
                 document.body.removeChild(iframe);
             };
