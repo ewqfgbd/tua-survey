@@ -689,28 +689,25 @@
             const currentPageElement = document.querySelector('.page.active');
             currentPageElement.classList.remove('active');
 
-            // Handle direct submission from page 4 if no committees are selected
-            if (currentPage === 4 && direction === 1) {
+            // --- START MODIFICATION ---
+            if (currentPage === 4 && direction === 1) { // When moving from page 4 (committee selection)
+                if (!dynamicPagesCreated) { // Only create dynamic pages once
+                    createDynamicPages();
+                }
                 const checkboxes = document.querySelectorAll('input[name="committees"]:checked');
                 selectedCommittees = Array.from(checkboxes).map(cb => cb.value);
 
-                if (selectedCommittees.length === 0 && !dynamicPagesCreated) {
-                    // If no committees selected, treat page 4 as the last content page before thank you
-                    totalPages = 5; // Reset totalPages to just the base 5 pages
-                    dynamicPagesCreated = true; // Mark as created to prevent re-creation
-                    submitSurvey();
-                    currentPage = totalPages; // Go directly to thank you page
-                } else if (!dynamicPagesCreated) {
-                    // If committees are selected and dynamic pages not yet created, create them
-                    createDynamicPages();
-                    currentPage += direction; // Proceed as normal to the first dynamic page
+                if (selectedCommittees.length === 0 && currentPage === 4) {
+                    // If no committees selected, skip directly to thank you page
+                    currentPage = totalPages; // Set current page to the thank you page
+                    submitSurvey(); // Submit the survey immediately
                 } else {
-                    // Already created, just proceed
                     currentPage += direction;
                 }
             } else {
                 currentPage += direction;
             }
+            // --- END MODIFICATION ---
 
             // Ensure we don't go beyond the bounds
             if (currentPage < 1) currentPage = 1;
@@ -733,14 +730,11 @@
             if (selectedCommittees.length > 0) {
                 // 有選擇委員會：最後一個委員會頁面是倒數第二頁
                 isLastContentPage = currentPage === totalPages - 1;
-            } else {
-                // 沒有選擇委員會或動態頁面已創建但為空：第4頁（委員會選擇頁）是倒數第二頁
-                // Or if dynamic pages were created but selectedCommittees became 0 for some reason (edge case)
-                isLastContentPage = currentPage === 4 && selectedCommittees.length === 0;
-                // Also consider the case where dynamic pages exist, and we're on the last one
-                if (dynamicPagesCreated && selectedCommittees.length > 0) {
-                     isLastContentPage = currentPage === totalPages - 1;
-                }
+            } else if (selectedCommittees.length === 0 && dynamicPagesCreated) {
+                // 沒有選擇委員會：第4頁（委員會選擇頁）是倒數第二頁 (This case is now handled by direct submission above)
+                // This 'else if' block can be simplified or removed, as direct submission for no committees will jump to totalPages
+                // For safety, let's keep the logic here for when dynamicPagesCreated is true but selectedCommittees is 0
+                isLastContentPage = currentPage === 4; 
             }
             
             if (isLastContentPage) {
@@ -752,7 +746,6 @@
             } else if (currentPage === totalPages) {
                 // 感謝頁面隱藏下一頁按鈕
                 document.getElementById('nextBtn').style.display = 'none';
-                document.getElementById('prevBtn').style.display = 'none'; // Also hide previous on thank you
             } else {
                 // 所有其他頁面都顯示下一頁
                 document.getElementById('nextBtn').textContent = '下一頁';
@@ -822,13 +815,15 @@
                 highlightPolicy: document.getElementById('highlightPolicy').value
             };
 
-            // Collect committee-specific responses
-            selectedCommittees.forEach(committee => {
-                formData.committeeResponses[committee] = {
-                    challenges: document.querySelector(`.committee-challenge[data-committee="${committee}"]`)?.value || '',
-                    future: document.querySelector(`.committee-future[data-committee="${committee}"]`)?.value || ''
-                };
-            });
+            // Collect committee-specific responses only if committees were selected
+            if (selectedCommittees.length > 0) {
+                selectedCommittees.forEach(committee => {
+                    formData.committeeResponses[committee] = {
+                        challenges: document.querySelector(`.committee-challenge[data-committee="${committee}"]`)?.value || '',
+                        future: document.querySelector(`.committee-future[data-committee="${committee}"]`)?.value || ''
+                    };
+                });
+            }
 
             return formData;
         }
@@ -855,13 +850,15 @@
             formDataEncoded.append('crossDisciplinary', formData.crossDisciplinary || '');
             formDataEncoded.append('highlightPolicy', formData.highlightPolicy || '');
             
-            // 添加委員會回應
-            formData.selectedCommittees.forEach(committee => {
-                if (formData.committeeResponses[committee]) {
-                    formDataEncoded.append(`${committee}_challenges`, formData.committeeResponses[committee].challenges || '');
-                    formDataEncoded.append(`${committee}_future`, formData.committeeResponses[committee].future || '');
-                }
-            });
+            // 添加委員會回應 (only if committees were selected)
+            if (formData.selectedCommittees.length > 0) {
+                formData.selectedCommittees.forEach(committee => {
+                    if (formData.committeeResponses[committee]) {
+                        formDataEncoded.append(`${committee}_challenges`, formData.committeeResponses[committee].challenges || '');
+                        formDataEncoded.append(`${committee}_future`, formData.committeeResponses[committee].future || '');
+                    }
+                });
+            }
             
             // 使用 fetch 發送請求
             fetch(GOOGLE_SCRIPT_URL, {
@@ -875,7 +872,12 @@
                 submitBtn.textContent = '✓ 已提交';
                 
                 // 跳轉到感謝頁面
-                // This is now handled by changePage(1) being called after submitSurvey()
+                setTimeout(() => {
+                    // Check if current page is already the thank you page to avoid redundant jumps
+                    if (currentPage !== totalPages) {
+                        changePage(1); // Only jump if not already on thank you page
+                    }
+                }, 1000);
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -915,22 +917,24 @@
                 form.appendChild(input);
             }
 
-            // 添加委員會回應
-            formData.selectedCommittees.forEach(committee => {
-                if (formData.committeeResponses[committee]) {
-                    const challengeInput = document.createElement('input');
-                    challengeInput.type = 'hidden';
-                    challengeInput.name = `${committee}_challenges`;
-                    challengeInput.value = formData.committeeResponses[committee].challenges || '';
-                    form.appendChild(challengeInput);
+            // 添加委員會回應 (only if committees were selected)
+            if (formData.selectedCommittees.length > 0) {
+                formData.selectedCommittees.forEach(committee => {
+                    if (formData.committeeResponses[committee]) {
+                        const challengeInput = document.createElement('input');
+                        challengeInput.type = 'hidden';
+                        challengeInput.name = `${committee}_challenges`;
+                        challengeInput.value = formData.committeeResponses[committee].challenges || '';
+                        form.appendChild(challengeInput);
 
-                    const futureInput = document.createElement('input');
-                    futureInput.type = 'hidden';
-                    futureInput.name = `${committee}_future`;
-                    futureInput.value = formData.committeeResponses[committee].future || '';
-                    form.appendChild(futureInput);
-                }
-            });
+                        const futureInput = document.createElement('input');
+                        futureInput.type = 'hidden';
+                        futureInput.name = `${committee}_future`;
+                        futureInput.value = formData.committeeResponses[committee].future || '';
+                        form.appendChild(futureInput);
+                    }
+                });
+            }
             
             // 創建隱藏的 iframe
             const iframe = document.createElement('iframe');
@@ -940,10 +944,14 @@
 
             // 監聽 iframe 的載入事件，判斷提交是否成功
             iframe.onload = function() {
-                // 通常 iframe 提交不會有 direct response body，所以主要看是否加載完成
                 alert('問卷已成功提交至 Google Sheets (透過備用方案)！');
                 document.getElementById('nextBtn').textContent = '✓ 已提交';
-                 // This is now handled by changePage(1) being called after submitSurvey()
+                 setTimeout(() => {
+                    // Check if current page is already the thank you page to avoid redundant jumps
+                    if (currentPage !== totalPages) {
+                        changePage(1); // Only jump if not already on thank you page
+                    }
+                }, 1000);
                 document.body.removeChild(form);
                 document.body.removeChild(iframe);
             };
