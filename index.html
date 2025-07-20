@@ -686,55 +686,56 @@
         }
 
         function changePage(direction) {
-            const currentPageElement = document.querySelector('.page.active');
-            currentPageElement.classList.remove('active');
+            const currentActivePageElement = document.querySelector('.page.active');
+            const oldCurrentPage = currentPage; // 儲存當前頁碼，以便判斷頁面切換前的位置
 
-            // Create dynamic pages after committee selection (page 4)
-            if (currentPage === 4 && direction === 1 && !dynamicPagesCreated) {
-                createDynamicPages();
+            currentActivePageElement.classList.remove('active');
+
+            // 如果從第4頁點擊「下一頁」 (direction = 1)，則觸發提交並直接跳轉到感謝頁面
+            if (oldCurrentPage === 4 && direction === 1) {
+                // 確保在提交前更新 selectedCommittees，並可能觸發 dynamicPagesCreated 和 totalPages 更新
+                // 儘管 dynamicPagesCreated 會插入 HTML，但在這裡我們主要關心資料收集
+                if (oldCurrentPage === 4 && direction === 1 && !dynamicPagesCreated) {
+                    createDynamicPages(); // 確保 selectedCommittees 和 totalPages 狀態最新
+                }
+                
+                submitSurvey(); // 觸發問卷提交
+
+                // 提交後，直接跳轉到感謝頁面
+                const thankYouPageIndex = document.querySelectorAll('.page').length; // 獲取實際的感謝頁索引
+                currentPage = thankYouPageIndex; // 更新當前頁碼為感謝頁
+                
+                document.querySelectorAll('.page')[currentPage - 1].classList.add('active'); // 顯示感謝頁
+
+                document.getElementById('prevBtn').disabled = true; // 感謝頁禁用「上一頁」
+                document.getElementById('nextBtn').style.display = 'none'; // 感謝頁隱藏「下一頁」
+                updateProgressBar();
+                return; // 處理完畢，結束函式
             }
 
+            // 非第4頁提交情況的正常頁面導航邏輯
             currentPage += direction;
 
-            // Ensure we don't go beyond the bounds
+            // 確保頁碼不超出範圍
             if (currentPage < 1) currentPage = 1;
-            if (currentPage > totalPages) currentPage = totalPages;
-            
-            // Show the new page
+            if (currentPage > totalPages) currentPage = totalPages; // 通常用於防止超出最後一頁，這裡因為直接跳轉已經處理
+
+            // 顯示新的頁面
             const pages = document.querySelectorAll('.page');
             pages[currentPage - 1].classList.add('active');
 
-            // Update navigation buttons
+            // 更新導航按鈕狀態
             document.getElementById('prevBtn').disabled = currentPage === 1;
             
-            // Reset button visibility
+            // 重置按鈕可見性
             document.getElementById('nextBtn').style.display = 'block';
             document.getElementById('prevBtn').style.display = 'block';
             
-            // 檢查是否為最後一個內容頁面
-            let isLastContentPage = false;
-            
-            if (selectedCommittees.length > 0) {
-                // 有選擇委員會：最後一個委員會頁面是倒數第二頁
-                isLastContentPage = currentPage === totalPages - 1;
-            } else if (selectedCommittees.length === 0 && dynamicPagesCreated) {
-                // 沒有選擇委員會：第4頁（委員會選擇頁）是倒數第二頁
-                isLastContentPage = currentPage === 4;
-            }
-            
-            if (isLastContentPage) {
-                document.getElementById('nextBtn').textContent = '提交問卷';
-                
-                document.getElementById('nextBtn').onclick = () => {
-                    console.log('提交問卷:', '1');
-                    submitSurvey();
-                    changePage(1); // 提交後自動跳到感謝頁面
-                };
-            } else if (currentPage === totalPages) {
-                // 感謝頁面隱藏下一頁按鈕
+            // 如果當前頁面是感謝頁，則隱藏「下一頁」按鈕
+            if (currentPage === totalPages) {
                 document.getElementById('nextBtn').style.display = 'none';
             } else {
-                // 所有其他頁面都顯示下一頁
+                // 其他頁面顯示「下一頁」
                 document.getElementById('nextBtn').textContent = '下一頁';
                 document.getElementById('nextBtn').onclick = () => changePage(1);
             }
@@ -793,7 +794,7 @@
 
         function collectFormData() {
             const formData = {
-                userName: document.getElementById('userName').value || '', // Added userName
+                userName: document.getElementById('userName').value || '',
                 workplace: document.querySelector('input[name="workplace"]:checked')?.value || '',
                 experience: document.querySelector('input[name="experience"]:checked')?.value || '',
                 selectedCommittees: selectedCommittees,
@@ -828,7 +829,7 @@
             // 準備要發送的資料（簡化格式）
             const formDataEncoded = new FormData();
             formDataEncoded.append('timestamp', new Date().toISOString());
-            formDataEncoded.append('userName', formData.userName); // Appended userName
+            formDataEncoded.append('userName', formData.userName);
             formDataEncoded.append('workplace', formData.workplace || '');
             formDataEncoded.append('experience', formData.experience || '');
             formDataEncoded.append('selectedCommittees', formData.selectedCommittees.join(';'));
@@ -854,19 +855,16 @@
                 alert('問卷已成功提交至 Google Sheets！');
                 submitBtn.textContent = '✓ 已提交';
                 
-                // 顯示匯出選項
-                // showExportOptionsAfterSubmit(formData); // This function is not defined in the original code, commenting out.
-                
-                // 跳轉到感謝頁面
-                setTimeout(() => {
-                    changePage(1);
-                }, 1000);
+                // 提交成功後，不再自動跳轉，因為提交邏輯已處理跳轉到感謝頁
+                // setTimeout(() => {
+                //     changePage(1);
+                // }, 1000);
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('提交失敗，請稍後再試。'); // Added an alert for submission failure
-                submitBtn.disabled = false; // Re-enable button on error
-                submitBtn.textContent = '提交問卷'; // Reset button text
+                alert('提交失敗，請稍後再試。');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '提交問卷';
                 // 備用方案：使用 iframe 提交
                 submitViaIframe(GOOGLE_SCRIPT_URL, formData);
             });
@@ -883,7 +881,7 @@
             // 添加基本欄位
             const fields = {
                 timestamp: new Date().toISOString(),
-                userName: formData.userName, // Added userName
+                userName: formData.userName,
                 workplace: formData.workplace || '',
                 experience: formData.experience || '',
                 selectedCommittees: formData.selectedCommittees.join(';'),
@@ -925,12 +923,12 @@
 
             // 監聽 iframe 的載入事件，判斷提交是否成功
             iframe.onload = function() {
-                // 通常 iframe 提交不會有 direct response body，所以主要看是否加載完成
                 alert('問卷已成功提交至 Google Sheets (透過備用方案)！');
                 document.getElementById('nextBtn').textContent = '✓ 已提交';
-                 setTimeout(() => {
-                    changePage(1);
-                }, 1000);
+                 // 提交成功後，不再自動跳轉，因為提交邏輯已處理跳轉到感謝頁
+                // setTimeout(() => {
+                //    changePage(1);
+                // }, 1000);
                 document.body.removeChild(form);
                 document.body.removeChild(iframe);
             };
