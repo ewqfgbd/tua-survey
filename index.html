@@ -724,7 +724,9 @@
             
             if (isLastContentPage) {
                 document.getElementById('nextBtn').textContent = '提交問卷';
+                
                 document.getElementById('nextBtn').onclick = () => {
+                    console.log('提交問卷:', '1');
                     submitSurvey();
                     changePage(1); // 提交後自動跳到感謝頁面
                 };
